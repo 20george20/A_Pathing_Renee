@@ -57,7 +57,7 @@ class SquareGrid:
     def in_bounds(self, id):
         (x, y) = id
         return 0 < x < self.width and 0 < y < self.height
-#TODO: Figure out what is going on with the path going out of bounds - what is the filter method doing exactly? 
+#TODO: Figure out what is going on with the path going out of bounds - what is the filter method doing exactly?
 
     def neighbors(self, id):
         (x, y) = id
