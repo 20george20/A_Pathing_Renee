@@ -20,7 +20,7 @@ for row in range(0, 480):
     for col in range(0, 844):
       color = int(data[row][col]/17)
       draw.point((col,row), fill=(color, color, color))
-im.show()
+#im.show()
 
 #these methods come from implementation.py from the stanford resource
 def from_id_width(id, width):
@@ -42,8 +42,8 @@ def draw_tile(graph, id, style, width):
     return r
 #this method comes from implementation.py from the stanford resource
 def draw_grid(graph, width=2, **style):
-    for y in range(graph.height):
-        for x in range(graph.width):
+    for y in range(0, 480):
+        for x in range(0, 844):
             print("%%-%ds" % width % draw_tile(graph, (x, y), style, width), end="")
         print()
 
@@ -56,25 +56,24 @@ class SquareGrid:
 
     def in_bounds(self, id):
         (x, y) = id
-        return 0 < x < self.width and 0 < y < self.height
-#TODO: Figure out what is going on with the path going out of bounds - what is the filter method doing exactly?
+        return 0 < x < 844 and 0 < y < 480
 
     def neighbors(self, id):
         (x, y) = id
         results = [(x + 1, y), (x, y - 1), (x - 1, y), (x, y + 1)]
         if (x + y) % 2 == 0: results.reverse()  # aesthetics
-        results = filter(self.in_bounds, results)
-        return results
+        resultss = filter(self.in_bounds, results)
+        return resultss
 
 class GridWithWeights(SquareGrid):
     def __init__(self, width, height):
         super().__init__(width, height)
-        self.weights = {}
-
-    def cost(self, from_node, to_node):
-        (x, y) = from_node
-        (x1, y1) = to_node
-        return abs(self.weights[x][y]-self.weights[x1][y1])
+        self.weights = data
+#fix this method
+    def cost(self, current_node, next_node):
+        (x1, y1) = current_node
+        (x2, y2) = next_node
+        return abs(self.values[y1][x1] - self.values[y2][x2])
 
 g = GridWithWeights(844, 480)
 g.weights = g.values
@@ -103,10 +102,10 @@ def reconstruct_path(came_from, start, goal):
     path.reverse()
     return path
 
-def heuristic(current_node, next_node):
-    (x1, y1) = current_node
+def heuristic(goal_node, next_node):
+    (x1, y1) = goal_node
     (x2, y2) = next_node
-    return abs(data[y1][x1] - data[y2][x2])
+    return abs(g.values[y1][x1] - g.values[y2][x2])
 
 def a_star_search(graph, start, goal):
     frontier = PriorityQueue()
@@ -126,14 +125,20 @@ def a_star_search(graph, start, goal):
             new_cost = cost_so_far[current] + graph.cost(current, next)
             if next not in cost_so_far or new_cost < cost_so_far[next]:
                 cost_so_far[next] = new_cost
-                priority = new_cost + heuristic(current, next)
+                priority = new_cost + heuristic(goal, next)
                 frontier.put(next, priority)
                 came_from[next] = current
 
     return came_from, cost_so_far
 
-start = (0, 100)
-goal = (300, 100)
+start = (0, 240)
+goal = (843, 240)
 came_from, cost_so_far = a_star_search(g, start, goal)
 #draw_grid(g, width=3, point_to=came_from, start=start, goal=goal)
 draw_grid(g, width=3, path=reconstruct_path(came_from, start, goal))
+#put the path onto the image of mountains
+path = reconstruct_path(came_from, start, goal)
+for i in range(0, len(path)):
+    (x, y) = path[i]
+    draw.point((x, y), fill=(255, 0, 0))
+im.show()
