@@ -22,7 +22,7 @@ for row in range(0, 480):
       draw.point((col,row), fill=(color, color, color))
 #im.show()
 
-#these methods come from implementation.py from the stanford resource
+#these methods were writte  with help from the stanford resource
 def from_id_width(id, width):
     return (id % width, id // width)
 
@@ -40,14 +40,13 @@ def draw_tile(graph, id, style, width):
     if 'goal' in style and id == style['goal']: r = "Z"
     if 'path' in style and id in style['path']: r = "@"
     return r
-#this method comes from implementation.py from the stanford resource
+
 def draw_grid(graph, width=2, **style):
     for y in range(0, 480):
         for x in range(0, 844):
             print("%%-%ds" % width % draw_tile(graph, (x, y), style, width), end="")
         print()
 
-#making a graph from the data
 class SquareGrid:
     def __init__(self, width, height):
         self.width = width
@@ -69,7 +68,7 @@ class GridWithWeights(SquareGrid):
     def __init__(self, width, height):
         super().__init__(width, height)
         self.weights = data
-#fix this method
+
     def cost(self, current_node, next_node):
         (x1, y1) = current_node
         (x2, y2) = next_node
@@ -131,11 +130,14 @@ def a_star_search(graph, start, goal):
 
     return came_from, cost_so_far
 
+#implementation
 start = (0, 240)
 goal = (843, 240)
 came_from, cost_so_far = a_star_search(g, start, goal)
+
 #draw_grid(g, width=3, point_to=came_from, start=start, goal=goal)
 draw_grid(g, width=3, path=reconstruct_path(came_from, start, goal))
+
 #put the path onto the image of mountains
 path = reconstruct_path(came_from, start, goal)
 for i in range(0, len(path)):
